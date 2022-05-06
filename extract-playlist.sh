@@ -4,15 +4,11 @@ working_dir=$(echo ${BASH_SOURCE[0]} | awk -F [a-z0-9\-]*[.]sh '{ print $1; prin
 
 if [[ -d $working_dir/output ]]; then
     rm $working_dir/output/*.*
-	rm -rf $working_dir/output/.meta
 else
     mkdir $working_dir/output
 fi
 
-mkdir $working_dir/output/.meta
-
 music_dir=/run/media/sammypanda/Storage/Music
-meta_dir=/run/media/sammypanda/Storage/Music/.meta
 input=$1
 
 if [ -n "$input" ]; then
@@ -33,17 +29,6 @@ for line in $(cat "$input"); do
     fi
 done
 unset IFS
-
-if [ -n "$meta_dir" ]; then
-    rm -rf $working_dir/output/.meta/*
-    cp -r "$meta_dir" "$working_dir/output"
-else
-    mkdir $working_dir/output/.meta
-    if [ -d $working_dir/output/.meta/playlists ]; then
-        rm -rf $working_dir/output/.meta/playlists
-    fi
-    # cp -r "$playlist_dir" "$working_dir/output/.meta/playlists"
-fi
 
 playlist=$(echo "$1" | cut -f  1 -d '.')
 notify-send "$USER" "Playlist '$playlist' Synced"

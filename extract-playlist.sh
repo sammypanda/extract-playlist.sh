@@ -13,7 +13,6 @@ mkdir $working_dir/output/.meta
 
 music_dir=/run/media/sammypanda/Storage/Music
 meta_dir=/run/media/sammypanda/Storage/Music/.meta
-notif_image='/home/sammy/Pictures/Pictos/!real/Pillow Cuddles.jpg'
 input=$1
 
 if [ -n "$input" ]; then
@@ -47,8 +46,4 @@ else
 fi
 
 playlist=$(echo "$1" | cut -f  1 -d '.')
-if [ -n "$notif_image" ]; then
-    notify-send "$USER" "Playlist '$playlist' Synced" -i "$notif_image"
-else
-    notify-send "$USER" "Playlist '$playlist' Synced"
-fi
+notify-send "$USER" "Playlist '$playlist' Synced"

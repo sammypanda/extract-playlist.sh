@@ -14,6 +14,7 @@ fi
 
 IFS=$'\n'
 x=0
+# echo $(cat "$input")
 for line in $(cat "$input"); do
     x=$((x+1))
     # echo $x

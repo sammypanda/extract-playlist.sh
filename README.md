@@ -4,5 +4,12 @@
 <h2>Usage</h2>
 
 ```shell
-./extract-playlist.sh [path to m3u] [path to output]
+./extract-playlist.sh [path to m3u]
+
+options:
+-O [directory]
+set the path to the output
+
+-b [device ID]
+send over bluetooth instead of into an output directory (requires gui intervention)
 ```

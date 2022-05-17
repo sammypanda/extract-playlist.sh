@@ -1,18 +1,57 @@
 #!/bin/sh
 
+# variables
 working_dir=$(echo ${BASH_SOURCE[0]} | awk -F [a-z0-9\-]*[.]sh '{ print $1; print $3 }') # this doofus means we can't have more than one sh file in the working_dir
-
 music_dir=/run/media/sammypanda/Storage/Music
-input=$1
-output_dir=$2
+playlist=$1
 
-if [ -n "$input" ]; then
-    echo $input
+# check functions
+btchecks() {
+    if ! command -v bluetooth-sendto > /dev/null; then
+        echo "this script requires bluetooth-sendto"
+        return 1
+    elif ! command -v bluetoothctl > /dev/null; then
+        echo "this script requires bluetoothctl"
+        return 1
+    else
+        echo "⚠️  please make sure the intended device is paired already before using the bluetooth option"
+    fi
+}
+
+outputchecks() {
+    echo ""
+}
+
+# check inputs/options
+if [ -f "$playlist" ]; then
+    echo -e "playlist: $playlist\n"
+    shift
 else
     echo "add the m3u file as the first param (^^)"
 	exit 1
 fi
 
+while getopts b:O: option
+do 
+    case "${option}"
+        in
+        b) bluetooth=${OPTARG} ;;
+        O) output_dir=${OPTARG} ;;
+    esac
+done
+shift $((OPTIND -1))
+
+if [ -n "$bluetooth" ]; then 
+    if ! btchecks; then exit; fi
+fi
+
+if [ -n "$output_dir" ]; then
+    if ! outputchecks; then exit; fi
+else
+    exit
+fi
+
+# main loop process
 IFS=$'\n'
 x=0
 # DEBUG: echo $(cat "$playlist")
@@ -22,16 +61,14 @@ for line in $(cat "$playlist"); do
     if [[ "$line" =~ "$music_dir" ]]; then
         echo $line
         cp "$line" "$output_dir"
+        if [ -n "$bluetooth" ]; then
+            echo "reached"
+            bluetooth-sendto --device $bluetooth $line
+        fi
     fi
 done
 unset IFS
 
+# finish notification
 playlist=$(echo "$1" | cut -f  1 -d '.')
 notify-send "$USER" "Playlist '$playlist' Synced"
-
-## at the moment the program outputs to the output folder, add an option 
-
-path=$1
-
-
-## to let the user type the path (/path/to/folder) where the output files go, as opposed to being put into output folder

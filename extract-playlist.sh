@@ -15,10 +15,10 @@ fi
 
 IFS=$'\n'
 x=0
-# echo $(cat "$input")
-for line in $(cat "$input"); do
+# DEBUG: echo $(cat "$playlist")
+for line in $(cat "$playlist"); do
     x=$((x+1))
-    # echo $x
+    # DEBUG: echo $x
     if [[ "$line" =~ "$music_dir" ]]; then
         echo $line
         cp "$line" "$output_dir"

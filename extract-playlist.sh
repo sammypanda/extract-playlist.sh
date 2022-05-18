@@ -22,8 +22,16 @@ outputchecks() {
     echo ""
 }
 
+playlistchecks() {
+    if ! [ $(echo $playlist | grep ".m3u") ]; then
+        echo "playlist must be an .m3u file"
+        return 1
+    fi
+}
+
 # check inputs/options
 if [ -f "$playlist" ]; then
+    if ! playlistchecks; then exit; fi
     echo -e "playlist: $playlist\n"
     shift
 else

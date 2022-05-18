@@ -4,8 +4,9 @@
 <h2>Usage</h2>
 
 ```shell
-./extract-playlist.sh [path to m3u]
-
+./extract-playlist.sh [path to m3u] [options]
+```
+```
 options:
 -O [directory]
 set the path to the output

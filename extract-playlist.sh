@@ -23,7 +23,7 @@ outputchecks() {
 }
 
 playlistchecks() {
-    if ! [ $(echo $playlist | grep ".m3u") ]; then
+    if ! echo $playlist | grep ".m3u" > /dev/null; then
         echo "playlist must be an .m3u file"
         return 1
     fi

@@ -66,12 +66,21 @@ x=0
 for line in $(cat "$playlist"); do
     x=$((x+1))
     # DEBUG: echo $x
+    # DEBUG: echo "$output_dir"/${line/*\//""}
+
     if [[ "$line" =~ "$music_dir" ]]; then
-        echo $line
-        cp "$line" "$output_dir"
-        if [ -n "$bluetooth" ]; then
-            echo "reached"
-            bluetooth-sendto --device $bluetooth $line
+
+        if [[ -f "$output_dir"/${line/*\//""} ]]; then
+            echo -e "$(tput setaf 1)$line $(tput sgr0)(already exists)"
+        else 
+            echo -e "$(tput setaf 2)$line"
+
+            cp "$line" "$output_dir"
+
+            if [ -n "$bluetooth" ]; then
+                echo "reached"
+                bluetooth-sendto --device $bluetooth $line
+            fi
         fi
     fi
 done

@@ -2,8 +2,9 @@
 
 # variables
 working_dir=$(echo ${BASH_SOURCE[0]} | awk -F [a-z0-9\-]*[.]sh '{ print $1; print $3 }') # this doofus means we can't have more than one sh file in the working_dir
-music_dir=/run/media/sammypanda/Storage/Music
+music_dir=/mnt/storage/Music
 playlist=$1
+mp3=false
 
 # check functions
 btchecks() {
@@ -39,12 +40,13 @@ else
 	exit 1
 fi
 
-while getopts b:O: option
+while getopts b:O:m option
 do 
     case "${option}"
         in
         b) bluetooth=${OPTARG} ;;
         O) output_dir=${OPTARG} ;;
+        m) mp3=true ;;
     esac
 done
 shift $((OPTIND -1))
@@ -70,16 +72,28 @@ for line in $(cat "$playlist"); do
 
     if [[ "$line" =~ "$music_dir" ]]; then
 
-        if [[ -f "$output_dir"/${line/*\//""} ]]; then
-            echo -e "$(tput setaf 1)$line $(tput sgr0)(already exists)"
-        else 
-            echo -e "$(tput setaf 2)$line"
+        if [ "$mp3" != false ]; then # convert the path
+            line_but_mp3=${line/%"."*/".mp3"} # replace file extension with mp3
+            path="$line_but_mp3"
+        else # stay consistent to the true path $line from the m3u file
+            path="$line"
+        fi
 
-            cp "$line" "$output_dir"
+        if [[ -f "$output_dir"/${path/*\//""} ]]; then
+            echo -e "$(tput setaf 1)$path $(tput sgr0)(already exists)"
+        else 
+            echo -e "$(tput setaf 2)$path"
+
+            if [ "$mp3" != false ]; then # only replace last instance of .flac/.wav/etc extension
+                flatten_dir=${path/"/"*"/"/""} # remove all "/[and text here]/"
+                ffmpeg -i "$line" "$output_dir/$flatten_dir" -y &> /dev/null
+            else
+                cp "$path" "$output_dir"
+            fi
 
             if [ -n "$bluetooth" ]; then
                 echo "reached"
-                bluetooth-sendto --device $bluetooth $line
+                bluetooth-sendto --device $bluetooth $path
             fi
         fi
     fi

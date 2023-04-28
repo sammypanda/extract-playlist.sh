@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # variables
-working_dir=$(echo ${BASH_SOURCE[0]} | awk -F [a-z0-9\-]*[.]sh '{ print $1; print $3 }') # this doofus means we can't have more than one sh file in the working_dir
 music_dir=/mnt/storage/Music
 playlist=$1
 mp3=false

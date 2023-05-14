@@ -63,11 +63,11 @@ fi
 # main loop process
 IFS=$'\n'
 x=0
-# DEBUG: echo $(cat "$playlist")
+# echo $(cat "$playlist") # DEBUG (dumps entire playlist in raw text)
 for line in $(cat "$playlist"); do
     x=$((x+1))
-    # DEBUG: echo $x
-    # DEBUG: echo "$output_dir"/${line/*\//""}
+    # echo $x # DEBUG (shows line number)
+    # echo "$output_dir"/${line/*\//""} # DEBUG
 
     path=`find $music_dir -maxdepth 2 -name "*${line/*\//}*"`
 

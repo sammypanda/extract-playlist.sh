@@ -69,13 +69,15 @@ for line in $(cat "$playlist"); do
     # DEBUG: echo $x
     # DEBUG: echo "$output_dir"/${line/*\//""}
 
-    if [[ "$line" =~ "$music_dir" ]]; then
+    path=`find $music_dir -maxdepth 2 -name "*${line/*\//}*"`
+
+    if [[ $path ]]; then
 
         if [ "$mp3" != false ]; then # convert the path
-            line_but_mp3=${line/%"."*/".mp3"} # replace file extension with mp3
-            path="$line_but_mp3"
+            path_but_mp3=${path/%"."*/".mp3"} # replace file extension with mp3
+            path="$path_but_mp3"
         else # stay consistent to the true path $line from the m3u file
-            path="$line"
+            path="$path"
         fi
 
         if [[ -f "$output_dir"/${path/*\//""} ]]; then
@@ -85,7 +87,7 @@ for line in $(cat "$playlist"); do
 
             if [ "$mp3" != false ]; then # only replace last instance of .flac/.wav/etc extension
                 flatten_dir=${path/"/"*"/"/""} # remove all "/[and text here]/"
-                ffmpeg -i "$line" "$output_dir/$flatten_dir" -y &> /dev/null
+                ffmpeg -i "$path" "$output_dir/$flatten_dir" -y &> /dev/null
             else
                 cp "$path" "$output_dir"
             fi
@@ -95,6 +97,9 @@ for line in $(cat "$playlist"); do
                 bluetooth-sendto --device $bluetooth $path
             fi
         fi
+
+    else
+        echo "could not find ${line/*\//} in $music_dir"
     fi
 done
 unset IFS

@@ -75,8 +75,14 @@ done
 shift $((OPTIND -1))
 
 # check functions
-if [ -z "$localPlaylist" ]; then
-	localPlaylist=$playlist
+if [ -z "$localPlaylist" ]; then # define localPlaylist with fallback
+    if [ -z "$playlist" ]; then
+        echo -e "$(tput setaf 1)\n !!! Could not find playlist, please add as first parameter or do the setup $(tput sgr0)"
+        localHelp
+        exit
+    else
+        localPlaylist=$playlist
+    fi
 fi
 
 outputchecks() {
@@ -101,6 +107,12 @@ playlistchecks() {
         return 1
     fi
 }
+
+if [ -n "$localPlaylist" ]; then
+    if ! playlistchecks; then exit; fi
+else
+    exit
+fi
 
 if [ -n "$bluetooth" ]; then 
     if ! btchecks; then exit; fi

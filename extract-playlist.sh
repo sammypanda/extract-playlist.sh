@@ -3,7 +3,7 @@
 # variables
 localPlaylist=$1
 mp3=false
-appData="$XDG_CONFIG_HOME/extract-playlist-script"
+appData="$HOME/.config/extract-playlist-script"
 appDefaults="$appData/defaults.conf"
 
 # init mechanisms

@@ -93,9 +93,8 @@ playlistchecks() {
 }
 
 # ----- check inputs/options
-if [ -f "$localPlaylist" ]; then
+if [ -n "$localPlaylist" ]; then
     if ! playlistchecks; then exit; fi
-    echo -e "playlist: $localPlaylist\n"
     shift
 else
     echo -e "\n $(tput setaf 1)!!! add the m3u file as the first param (^^) $(tput sgr0)"
@@ -125,6 +124,15 @@ if [ -n "$output_dir" ]; then
 else
     echo "Add an output dir with -O [dir]"
     exit
+fi
+
+if ! [ -f "$localPlaylist" ]; then
+    echo -e "Invalid Playlist: $localPlaylist ❌\n"
+
+    echo -e "\n$(tput setaf 1) !!! $(tput sgr0)$localPlaylist$(tput setaf 1) is not a path directly to a playlist file$(tput sgr0)"
+    exit
+else
+    echo -e "Using Playlist: $localPlaylist ✅\n"
 fi
 
 # ----- main loop process

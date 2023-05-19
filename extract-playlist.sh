@@ -5,7 +5,6 @@ localPlaylist=$1
 mp3=false
 appData="$HOME/.config/extract-playlist-script"
 appDefaults="$appData/defaults.conf"
-output_dir=""
 
 # init mechanisms
 localSetup() {
@@ -61,19 +60,6 @@ localHelp() {
 	"
 }
 
-while getopts hbOmi option
-do 
-    case "${option}"
-        in
-	    h) localHelp ;;
-        b) bluetooth=${OPTARG} ;;
-        O) output_dir=${OPTARG} ;;
-        m) mp3=true ;;
-	    i) localSetup ;;
-    esac
-done
-shift $((OPTIND -1))
-
 # check functions
 if [ -z "$localPlaylist" ]; then # define localPlaylist with fallback
     if [ -z "$playlist" ]; then
@@ -108,11 +94,28 @@ playlistchecks() {
     fi
 }
 
-if [ -n "$localPlaylist" ]; then
+# check inputs/options
+if [ -f "$localPlaylist" ]; then
     if ! playlistchecks; then exit; fi
+    echo -e "playlist: $localPlaylist\n"
+    shift
 else
-    exit
+    echo "add the m3u file as the first param (^^)"
+	exit 1
 fi
+
+while getopts b:O:m:h option
+do 
+    case "${option}"
+        in
+        b) bluetooth=${OPTARG} ;;
+        O) output_dir=${OPTARG} ;;
+        m) mp3=true ;;
+        h) localHelp ;;
+        i) localSetup ;;
+    esac
+done
+shift $((OPTIND -1))
 
 if [ -n "$bluetooth" ]; then 
     if ! btchecks; then exit; fi

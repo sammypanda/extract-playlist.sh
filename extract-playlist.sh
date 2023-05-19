@@ -1,11 +1,84 @@
 #!/bin/bash
 
 # variables
-music_dir=/mnt/storage/Music
-playlist=$1
+localPlaylist=$1
 mp3=false
+appData="$XDG_CONFIG_HOME/extract-playlist-script"
+appDefaults="$appData/defaults.conf"
+
+# init mechanisms
+localSetup() {
+	echo "-- starting setup --"
+
+	if ! [ -a "$appDefaults" ]; then
+		echo "no defaults found, creating..."
+		mkdir -p "$appData"
+		touch "$appDefaults"
+	else
+		source "$appDefaults"
+	fi
+
+	echo -e "$(tput clear)"
+
+	read -p "Enter music_dir directory [$music_dir]: " Read_music_dir
+	music_dir=${Read_music_dir:-$music_dir}
+
+	echo "music_dir=$music_dir" > $appDefaults
+}
+
+if ! [ -a "$appDefaults" ]; then
+	localSetup
+else
+	source "$appDefaults"
+fi
+
+# output functions
+# $1 = bool for failed command attempt
+localHelp() {
+	local invalid=${1:-false}
+	
+	if $invalid; then
+		echo "Unknown command :("
+	fi
+
+	echo -e "
+		./extract-playlist.sh [path to m3u] [options]
+
+		options:
+		-O [directory]
+		set the path to the output
+
+		-b [device ID]
+		send over bluetooth instead of into an output directory (requires gui intervention)
+
+		-i
+		(init) go through setup again
+	"
+}
+
+while getopts ":hbOmi" option
+do 
+    case "${option}"
+        in
+	h) localHelp ;;
+        b) bluetooth=${OPTARG} ;;
+        O) output_dir=${OPTARG} ;;
+        m) mp3=true ;;
+	i) localSetup ;;
+    esac
+done
+shift $((OPTIND -1))
 
 # check functions
+if [ -z "$localPlaylist" ]; then
+	localPlaylist=$playlist
+fi
+
+if [ -z "$playlist" ]; then
+	echo -e "$(tput setaf 1)\n !!! Could not find playlist, please add as first parameter or do the setup $(tput sgr0)"
+	localHelp
+fi
+
 btchecks() {
     if ! command -v bluetooth-sendto > /dev/null; then
         echo "this script requires bluetooth-sendto"
@@ -18,37 +91,12 @@ btchecks() {
     fi
 }
 
-outputchecks() {
-    echo ""
-}
-
 playlistchecks() {
-    if ! echo $playlist | grep ".m3u" > /dev/null; then
+    if ! echo $localPlaylist | grep ".m3u" > /dev/null; then
         echo "playlist must be an .m3u file"
         return 1
     fi
 }
-
-# check inputs/options
-if [ -f "$playlist" ]; then
-    if ! playlistchecks; then exit; fi
-    echo -e "playlist: $playlist\n"
-    shift
-else
-    echo "add the m3u file as the first param (^^)"
-	exit 1
-fi
-
-while getopts b:O:m option
-do 
-    case "${option}"
-        in
-        b) bluetooth=${OPTARG} ;;
-        O) output_dir=${OPTARG} ;;
-        m) mp3=true ;;
-    esac
-done
-shift $((OPTIND -1))
 
 if [ -n "$bluetooth" ]; then 
     if ! btchecks; then exit; fi
@@ -63,8 +111,8 @@ fi
 # main loop process
 IFS=$'\n'
 x=0
-# echo $(cat "$playlist") # DEBUG (dumps entire playlist in raw text)
-for line in $(cat "$playlist"); do
+# echo $(cat "$localPlaylist") # DEBUG (dumps entire playlist in raw text)
+for line in $(cat "$localPlaylist"); do
     x=$((x+1))
     # echo $x # DEBUG (shows line number)
     # echo "$output_dir"/${line/*\//""} # DEBUG
@@ -106,4 +154,4 @@ unset IFS
 
 # finish notification
 playlist=$(echo "$1" | cut -f  1 -d '.')
-notify-send "$USER" "Playlist '$playlist' Synced"
+notify-send "$USER" "Playlist '$localPlaylist' Synced"

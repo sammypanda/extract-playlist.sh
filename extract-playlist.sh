@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# variables
+# ----- variables
 localPlaylist=$1
 mp3=false
 appData="$HOME/.config/extract-playlist-script"
 appDefaults="$appData/defaults.conf"
 
-# init mechanisms
+# ----- init mechanisms
 localSetup() {
 	echo "-- starting setup --"
 
@@ -34,7 +34,7 @@ else
 	source "$appDefaults"
 fi
 
-# output functions
+# ----- output functions
 # $1 = bool for failed command attempt
 localHelp() {
 	local invalid=${1:-false}
@@ -58,7 +58,7 @@ localHelp() {
 	"
 }
 
-# check functions
+# ----- check functions
 if [ -z "$localPlaylist" ]; then # define localPlaylist with fallback
     if [ -z "$playlist" ]; then
         echo -e "$(tput setaf 1)\n !!! Could not find playlist, please add as first parameter or do the setup $(tput sgr0)"
@@ -92,7 +92,7 @@ playlistchecks() {
     fi
 }
 
-# check inputs/options
+# ----- check inputs/options
 if [ -f "$localPlaylist" ]; then
     if ! playlistchecks; then exit; fi
     echo -e "playlist: $localPlaylist\n"
@@ -127,7 +127,7 @@ else
     exit
 fi
 
-# main loop process
+# ----- main loop process
 IFS=$'\n'
 x=0
 # echo $(cat "$localPlaylist") # DEBUG (dumps entire playlist in raw text)

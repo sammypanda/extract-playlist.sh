@@ -170,7 +170,3 @@ for line in $(cat "$localPlaylist"); do
     fi
 done
 unset IFS
-
-# finish notification
-playlist=$(echo "$1" | cut -f  1 -d '.')
-notify-send "$USER" "Playlist '$localPlaylist' Synced"

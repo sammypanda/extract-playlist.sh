@@ -26,8 +26,6 @@ localSetup() {
 	echo "music_dir=$music_dir" > $appDefaults
 
     echo -e "-- finished setting up --\n"
-
-    exit
 }
 
 if ! [ -a "$appDefaults" ]; then
@@ -100,11 +98,12 @@ if [ -f "$localPlaylist" ]; then
     echo -e "playlist: $localPlaylist\n"
     shift
 else
-    echo "add the m3u file as the first param (^^)"
-	exit 1
+    echo -e "\n $(tput setaf 1)!!! add the m3u file as the first param (^^) $(tput sgr0)"
+    localHelp
+    exit 1
 fi
 
-while getopts b:O:m:h option
+while getopts b:O:m:h:i option
 do 
     case "${option}"
         in

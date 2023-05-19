@@ -5,6 +5,7 @@ localPlaylist=$1
 mp3=false
 appData="$HOME/.config/extract-playlist-script"
 appDefaults="$appData/defaults.conf"
+output_dir=""
 
 # init mechanisms
 localSetup() {
@@ -60,15 +61,15 @@ localHelp() {
 	"
 }
 
-while getopts ":hbOmi" option
+while getopts hbOmi option
 do 
     case "${option}"
         in
-	h) localHelp ;;
+	    h) localHelp ;;
         b) bluetooth=${OPTARG} ;;
         O) output_dir=${OPTARG} ;;
         m) mp3=true ;;
-	i) localSetup ;;
+	    i) localSetup ;;
     esac
 done
 shift $((OPTIND -1))
@@ -78,10 +79,9 @@ if [ -z "$localPlaylist" ]; then
 	localPlaylist=$playlist
 fi
 
-if [ -z "$playlist" ]; then
-	echo -e "$(tput setaf 1)\n !!! Could not find playlist, please add as first parameter or do the setup $(tput sgr0)"
-	localHelp
-fi
+outputchecks() {
+    echo ""
+}
 
 btchecks() {
     if ! command -v bluetooth-sendto > /dev/null; then
@@ -109,6 +109,7 @@ fi
 if [ -n "$output_dir" ]; then
     if ! outputchecks; then exit; fi
 else
+    echo "Add an output dir with -O [dir]"
     exit
 fi
 

@@ -24,6 +24,10 @@ localSetup() {
 	music_dir=${Read_music_dir:-$music_dir}
 
 	echo "music_dir=$music_dir" > $appDefaults
+
+    echo -e "-- finished setting up --\n"
+
+    exit
 }
 
 if ! [ -a "$appDefaults" ]; then

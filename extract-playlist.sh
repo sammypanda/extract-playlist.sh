@@ -73,6 +73,8 @@ outputchecks() {
     if ! [ -d $output_dir ]; then # (not) file exists and is directory
         echo "-O must be valid and a directory"
         return 1
+    elif ! [ -w $output_dir ]; then # (not) ...is writable
+        echo "-O you must have permissions to write to directory"
     fi
 }
 

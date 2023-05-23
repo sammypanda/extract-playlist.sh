@@ -93,8 +93,9 @@ playlistchecks() {
 }
 
 # ----- check inputs/options
-if [ -n "$localPlaylist" ]; then
+if [ -f "$localPlaylist" ]; then
     if ! playlistchecks; then exit; fi
+    echo -e "playlist: $localPlaylist\n"
     shift
 else
     echo -e "\n $(tput setaf 1)!!! add the m3u file as the first param (^^) $(tput sgr0)"

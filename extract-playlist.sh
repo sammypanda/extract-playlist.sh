@@ -138,7 +138,7 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
 
     path=`find $music_dir -maxdepth 2 -name "*${line/*\//}*"`
 
-    if [[ $path ]]; then
+    if [[ -e $line ]]; then
 
         if [ "$mp3" != false ]; then # convert the path
             path_but_mp3=${path/%"."*/".mp3"} # replace file extension with mp3
@@ -156,7 +156,7 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
                 flatten_dir=${path/"/"*"/"/""} # remove all "/[and text here]/"
                 ffmpeg -i "$path" "$output_dir/$flatten_dir" -y &> /dev/null
             else
-                cp "$path" "$output_dir"
+                cp "$line" "$output_dir"
             fi
 
             if [ -n "$bluetooth" ]; then
@@ -166,7 +166,7 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
         fi
 
     else
-        echo "could not find ${line/*\//} in $music_dir"
+        echo "could not find $line"
     fi
 done
 unset IFS

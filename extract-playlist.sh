@@ -38,7 +38,7 @@ fi
 # $1 = bool for failed command attempt
 localHelp() {
 	local invalid=${1:-false}
-	
+
 	if $invalid; then
 		echo "Unknown command :("
 	fi
@@ -70,12 +70,7 @@ if [ -z "$localPlaylist" ]; then # define localPlaylist with fallback
 fi
 
 outputchecks() {
-    if ! [ -d $output_dir ]; then # (not) file exists and is directory
-        echo "-O must be valid and a directory"
-        return 1
-    elif ! [ -w $output_dir ]; then # (not) ...is writable
-        echo "-O you must have permissions to write to directory"
-    fi
+    echo ""
 }
 
 btchecks() {
@@ -109,7 +104,7 @@ else
 fi
 
 while getopts b:O:m:h:i option
-do 
+do
     case "${option}"
         in
         b) bluetooth=${OPTARG} ;;
@@ -121,7 +116,7 @@ do
 done
 shift $((OPTIND -1))
 
-if [ -n "$bluetooth" ]; then 
+if [ -n "$bluetooth" ]; then
     if ! btchecks; then exit; fi
 fi
 
@@ -136,14 +131,14 @@ fi
 IFS=$'\n'
 x=0
 # echo $(cat "$localPlaylist") # DEBUG (dumps entire playlist in raw text)
-for line in $(cat "$localPlaylist"); do
+for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but remove lines starting with #)
     x=$((x+1))
     # echo $x # DEBUG (shows line number)
     # echo "$output_dir"/${line/*\//""} # DEBUG
 
     path=`find $music_dir -maxdepth 2 -name "*${line/*\//}*"`
 
-    if [[ $path ]]; then
+    if [[ -e $line ]]; then
 
         if [ "$mp3" != false ]; then # convert the path
             path_but_mp3=${path/%"."*/".mp3"} # replace file extension with mp3
@@ -154,14 +149,14 @@ for line in $(cat "$localPlaylist"); do
 
         if [[ -f "$output_dir"/${path/*\//""} ]]; then
             echo -e "$(tput setaf 1)$path $(tput sgr0)(already exists)"
-        else 
+        else
             echo -e "$(tput setaf 2)$path"
 
             if [ "$mp3" != false ]; then # only replace last instance of .flac/.wav/etc extension
                 flatten_dir=${path/"/"*"/"/""} # remove all "/[and text here]/"
                 ffmpeg -i "$path" "$output_dir/$flatten_dir" -y &> /dev/null
             else
-                cp "$path" "$output_dir"
+                cp "$line" "$output_dir"
             fi
 
             if [ -n "$bluetooth" ]; then
@@ -171,7 +166,7 @@ for line in $(cat "$localPlaylist"); do
         fi
 
     else
-        echo "could not find ${line/*\//} in $music_dir"
+        echo "could not find $line"
     fi
 done
 unset IFS

@@ -5,6 +5,10 @@ localPlaylist=$1
 mp3=false
 appData="$HOME/.config/extract-playlist-script"
 appDefaults="$appData/defaults.conf"
+total_bytes=0
+estimated_time="Unknown"
+nano_to_sec=1000000000
+start_time=$(date +%s)
 
 # ----- init mechanisms
 localSetup() {
@@ -131,10 +135,18 @@ fi
 # ----- main loop process
 IFS=$'\n'
 x=0
+total_bytes=0
 # echo $(cat "$localPlaylist") # DEBUG (dumps entire playlist in raw text)
+
+for line in $(sed "/^#/d" "$localPlaylist"); do
+    curr_bytes=`stat -c %s "$line"`
+    total_bytes=$(expr $curr_bytes + $total_bytes)
+done
 
 for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but remove lines starting with #)
     x=$((x+1))
+    curr_bytes=`stat -c %s "$line"`
+    loop_start_time=$(date +%s%N)
     # echo $x # DEBUG (shows line number)
     # echo "$output_dir"/${line/*\//""} # DEBUG
 
@@ -159,6 +171,14 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
                 ffmpeg -i "$path" "$output_dir/$flatten_dir" -y &> /dev/null
             else
                 cp "$line" "$output_dir"
+                echo "$line"
+
+                loop_end_time=$(date +%s%N)
+                loop_nano=$(expr $loop_end_time - $loop_start_time)
+                nano_per_byte=$(expr $loop_nano / $curr_bytes)
+                estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)s
+                
+                echo "estimated time: $estimated_time"
             fi
 
             if [ -n "$bluetooth" ]; then
@@ -171,4 +191,9 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
         echo "could not find $line"
     fi
 done
+
+end_time=$(date +%s)
+elapsed_time=$(expr $end_time - $start_time)s
+echo "elapsed time: $elapsed_time"
+
 unset IFS

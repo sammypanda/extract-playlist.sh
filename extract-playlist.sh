@@ -125,12 +125,15 @@ if [ -n "$output_dir" ]; then
 else
     echo "Add an output dir with -O [dir]"
     exit
+else
+    echo -e "Using Playlist: $localPlaylist ✅\n"
 fi
 
 # ----- main loop process
 IFS=$'\n'
 x=0
 # echo $(cat "$localPlaylist") # DEBUG (dumps entire playlist in raw text)
+
 for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but remove lines starting with #)
     x=$((x+1))
     # echo $x # DEBUG (shows line number)

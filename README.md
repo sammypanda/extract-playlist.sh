@@ -14,4 +14,7 @@ set the path to the output
 
 -b [device ID]
 send over bluetooth instead of into an output directory (requires gui intervention)
+
+-i
+(init) go through setup again
 ```

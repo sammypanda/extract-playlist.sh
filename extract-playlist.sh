@@ -122,11 +122,10 @@ fi
 
 if [ -n "$output_dir" ]; then
     if ! outputchecks; then exit; fi
+    echo -e "Using Playlist: $localPlaylist ✅\n"
 else
     echo "Add an output dir with -O [dir]"
     exit
-else
-    echo -e "Using Playlist: $localPlaylist ✅\n"
 fi
 
 # ----- main loop process

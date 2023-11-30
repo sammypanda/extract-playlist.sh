@@ -140,29 +140,36 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
 
     if [[ -e $line ]]; then
 
-        if [ "$mp3" != false ]; then # convert the path
-            path_but_mp3=${path/%"."*/".mp3"} # replace file extension with mp3
-            path="$path_but_mp3"
-        else # stay consistent to the true path $line from the m3u file
-            path="$path"
-        fi
+        if [[ -e $output_dir ]]; then
 
-        if [[ -f "$output_dir"/${path/*\//""} ]]; then
-            echo -e "$(tput setaf 1)$path $(tput sgr0)(already exists)"
-        else
-            echo -e "$(tput setaf 2)$path"
+            if [ "$mp3" != false ]; then # convert the path
+                path_but_mp3=${path/%"."*/".mp3"} # replace file extension with mp3
+                path="$path_but_mp3"
+            else # stay consistent to the true path $line from the m3u file
+                path="$path"
+            fi
 
-            if [ "$mp3" != false ]; then # only replace last instance of .flac/.wav/etc extension
-                flatten_dir=${path/"/"*"/"/""} # remove all "/[and text here]/"
-                ffmpeg -i "$path" "$output_dir/$flatten_dir" -y &> /dev/null
+            if [[ -f "$output_dir"/${path/*\//""} ]]; then
+                echo -e "$(tput setaf 1)$path $(tput sgr0)(already exists)"
             else
-                cp "$line" "$output_dir"
+                echo -e "$(tput setaf 2)$path"
+
+                if [ "$mp3" != false ]; then # only replace last instance of .flac/.wav/etc extension
+                    flatten_dir=${path/"/"*"/"/""} # remove all "/[and text here]/"
+                    ffmpeg -i "$path" "$output_dir/$flatten_dir" -y &> /dev/null
+                else
+                    cp "$line" "$output_dir"
+                fi
+
+                if [ -n "$bluetooth" ]; then
+                    echo "reached"
+                    bluetooth-sendto --device $bluetooth $path
+                fi
             fi
 
-            if [ -n "$bluetooth" ]; then
-                echo "reached"
-                bluetooth-sendto --device $bluetooth $path
-            fi
+        else
+            echo "output_dir no longer found"
+            exit
         fi
 
     else

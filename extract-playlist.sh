@@ -178,8 +178,8 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
                 loop_end_time=$(date +%s%N)
                 loop_nano=$(expr $loop_end_time - $loop_start_time)
                 nano_per_byte=$(expr $loop_nano / $curr_bytes)
+                total_bytes=$(expr $total_bytes - $curr_bytes)
                 estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)s
-                total_bytes=$(expr $curr_bytes - $total_bytes)
                 
                 echo "estimated time: $estimated_time"
 

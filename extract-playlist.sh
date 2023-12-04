@@ -155,7 +155,7 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
     # echo $x # DEBUG (shows line number)
     # echo "$output_dir"/${line/*\//""} # DEBUG
 
-    path=`find $music_dir -maxdepth 2 -name "*${line/*\//}*"`
+    path=`find $music_dir -maxdepth 2 -wholename "*${line/*\///}"`
 
     if [[ -e $line ]]; then
 

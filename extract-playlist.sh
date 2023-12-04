@@ -6,9 +6,37 @@ mp3=false
 appData="$HOME/.config/extract-playlist-script"
 appDefaults="$appData/defaults.conf"
 total_bytes=0
-estimated_time="Unknown"
+estimated_time= # null
 nano_to_sec=1000000000
 start_time=$(date +%s)
+
+get_time_from_seconds() {
+    local input="$1"
+
+    if [ -z "$input" ]; then
+        printf "Uncalculated"
+        return 1
+    fi
+
+    local hours=$((input / 3600))
+    local minutes=$(( (input % 3600) / 60 ))
+    local seconds=$((input % 60))
+
+    if [ "$hours" -gt 0 ]; then
+        printf "%d hours " "$hours"
+    elif [ "$minutes" -gt 0 ]; then
+        printf "%d minutes " "$minutes"
+    elif [ "$seconds" -gt 0 ]; then
+        printf "%d seconds" "$seconds"
+    else
+        printf "less than 1 second"
+    fi
+}
+
+
+get_estimated_time() {
+    echo "$(tput sgr0)estimated time remaining: $(get_time_from_seconds "$estimated_time")"
+}
 
 # ----- init mechanisms
 localSetup() {
@@ -99,7 +127,7 @@ playlistchecks() {
 # ----- check inputs/options
 if [ -f "$localPlaylist" ]; then
     if ! playlistchecks; then exit; fi
-    echo -e "playlist: $localPlaylist\n"
+    echo -e "Using Playlist: $localPlaylist ✅"
     shift
 else
     echo -e "\n $(tput setaf 1)!!! add the m3u file as the first param (^^) $(tput sgr0)"
@@ -126,11 +154,12 @@ fi
 
 if [ -n "$output_dir" ]; then
     if ! outputchecks; then exit; fi
-    echo -e "Using Playlist: $localPlaylist ✅\n"
 else
     echo "Add an output dir with -O [dir]"
     exit
 fi
+
+echo $(get_estimated_time) # set up UX expectation for showing estimated time value
 
 # ----- main loop process
 IFS=$'\n'
@@ -150,7 +179,7 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
     # echo $x # DEBUG (shows line number)
     # echo "$output_dir"/${line/*\//""} # DEBUG
 
-    path=`find $music_dir -maxdepth 2 -name "*${line/*\//}*"`
+    path=`find $music_dir -maxdepth 2 -wholename "*${line/*\///}"`
 
     if [[ -e $line ]]; then
 
@@ -166,22 +195,21 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
             if [[ -f "$output_dir"/${path/*\//""} ]]; then
                 echo -e "$(tput setaf 1)$path $(tput sgr0)(already exists)"
             else
-                echo -e "$(tput setaf 2)$path"
-
                 if [ "$mp3" != false ]; then # only replace last instance of .flac/.wav/etc extension
                     flatten_dir=${path/"/"*"/"/""} # remove all "/[and text here]/"
                     ffmpeg -i "$path" "$output_dir/$flatten_dir" -y &> /dev/null
-                else
-                    cp "$line" "$output_dir"
-                    echo "$line"
-
-                    loop_end_time=$(date +%s%N)
-                    loop_nano=$(expr $loop_end_time - $loop_start_time)
-                    nano_per_byte=$(expr $loop_nano / $curr_bytes)
-                    estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)s
-                    
-                    echo "estimated time: $estimated_time"
                 fi
+
+                echo -e "$(tput setaf 2)$path"
+                cp "$line" "$output_dir"
+
+                loop_end_time=$(date +%s%N)
+                loop_nano=$(expr $loop_end_time - $loop_start_time)
+                nano_per_byte=$(expr $loop_nano / $curr_bytes)
+                total_bytes=$(expr $total_bytes - $curr_bytes)
+                estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)
+                
+                echo $(get_estimated_time)
 
                 if [ -n "$bluetooth" ]; then
                     echo "reached"
@@ -201,6 +229,6 @@ done
 
 end_time=$(date +%s)
 elapsed_time=$(expr $end_time - $start_time)s
-echo "elapsed time: $elapsed_time"
+echo -e "\n$(tput sgr0)elapsed time: $elapsed_time"
 
 unset IFS

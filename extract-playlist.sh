@@ -201,6 +201,6 @@ done
 
 end_time=$(date +%s)
 elapsed_time=$(expr $end_time - $start_time)s
-echo "elapsed time: $elapsed_time"
+echo -e "\n$(tput sgr0)elapsed time: $elapsed_time"
 
 unset IFS

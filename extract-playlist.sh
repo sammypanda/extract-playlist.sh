@@ -178,7 +178,6 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
 
                 echo -e "$(tput setaf 2)$path"
                 cp "$line" "$output_dir"
-                echo "$line"
 
                 loop_end_time=$(date +%s%N)
                 loop_nano=$(expr $loop_end_time - $loop_start_time)

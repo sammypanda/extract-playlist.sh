@@ -166,22 +166,22 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
             if [[ -f "$output_dir"/${path/*\//""} ]]; then
                 echo -e "$(tput setaf 1)$path $(tput sgr0)(already exists)"
             else
-                echo -e "$(tput setaf 2)$path"
-
                 if [ "$mp3" != false ]; then # only replace last instance of .flac/.wav/etc extension
                     flatten_dir=${path/"/"*"/"/""} # remove all "/[and text here]/"
                     ffmpeg -i "$path" "$output_dir/$flatten_dir" -y &> /dev/null
-                else
-                    cp "$line" "$output_dir"
-                    echo "$line"
-
-                    loop_end_time=$(date +%s%N)
-                    loop_nano=$(expr $loop_end_time - $loop_start_time)
-                    nano_per_byte=$(expr $loop_nano / $curr_bytes)
-                    estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)s
-                    
-                    echo "estimated time: $estimated_time"
                 fi
+
+                echo -e "$(tput setaf 2)$path"
+                cp "$line" "$output_dir"
+                echo "$line"
+
+                loop_end_time=$(date +%s%N)
+                loop_nano=$(expr $loop_end_time - $loop_start_time)
+                nano_per_byte=$(expr $loop_nano / $curr_bytes)
+                estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)s
+                total_bytes=$(expr $curr_bytes - $total_bytes)
+                
+                echo "estimated time: $estimated_time"
 
                 if [ -n "$bluetooth" ]; then
                     echo "reached"

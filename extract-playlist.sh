@@ -6,14 +6,14 @@ mp3=false
 appData="$HOME/.config/extract-playlist-script"
 appDefaults="$appData/defaults.conf"
 total_bytes=0
-estimated_time="Unknown"
+estimated_time= # null
 nano_to_sec=1000000000
 start_time=$(date +%s)
 
 get_time_from_seconds() {
     local input="$1"
 
-    if [ "$input" == "Unknown" ]; then
+    if [ -z "$input" ]; then
         printf "Uncalculated"
         return 1
     fi

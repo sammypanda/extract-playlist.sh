@@ -10,6 +10,10 @@ estimated_time="Unknown"
 nano_to_sec=1000000000
 start_time=$(date +%s)
 
+get_estimated_time() {
+    echo "$(tput sgr0)estimated time remaining: $estimated_time"
+}
+
 # ----- init mechanisms
 localSetup() {
 	echo "-- starting setup --"
@@ -132,7 +136,7 @@ else
     exit
 fi
 
-echo "estimated time: $estimated_time" # set up UX expectation for showing estimated time value
+echo $(get_estimated_time) # set up UX expectation for showing estimated time value
 
 # ----- main loop process
 IFS=$'\n'
@@ -183,7 +187,7 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
                 total_bytes=$(expr $total_bytes - $curr_bytes)
                 estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)s
                 
-                echo "estimated time: $estimated_time"
+                echo $(get_estimated_time)
 
                 if [ -n "$bluetooth" ]; then
                     echo "reached"

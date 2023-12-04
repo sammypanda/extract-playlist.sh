@@ -10,8 +10,32 @@ estimated_time="Unknown"
 nano_to_sec=1000000000
 start_time=$(date +%s)
 
+get_time_from_seconds() {
+    local input="$1"
+
+    if [ "$input" == "Unknown" ]; then
+        printf "Uncalculated"
+        return 1
+    fi
+
+    local hours=$((input / 3600))
+    local minutes=$(( (input % 3600) / 60 ))
+    local seconds=$((input % 60))
+
+    if [ "$hours" -gt 0 ]; then
+        printf "%d hours " "$hours"
+    elif [ "$minutes" -gt 0 ]; then
+        printf "%d minutes " "$minutes"
+    elif [ "$seconds" -gt 0 ]; then
+        printf "%d seconds" "$seconds"
+    else
+        printf "less than 1 second"
+    fi
+}
+
+
 get_estimated_time() {
-    echo "$(tput sgr0)estimated time remaining: $estimated_time"
+    echo "$(tput sgr0)estimated time remaining: $(get_time_from_seconds "$estimated_time")"
 }
 
 # ----- init mechanisms
@@ -183,7 +207,7 @@ for line in $(sed "/^#/d" "$localPlaylist"); do # loop through the playlist (but
                 loop_nano=$(expr $loop_end_time - $loop_start_time)
                 nano_per_byte=$(expr $loop_nano / $curr_bytes)
                 total_bytes=$(expr $total_bytes - $curr_bytes)
-                estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)s
+                estimated_time=$(expr $nano_per_byte \* $total_bytes / $nano_to_sec)
                 
                 echo $(get_estimated_time)
 

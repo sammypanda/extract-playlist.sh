@@ -132,6 +132,8 @@ else
     exit
 fi
 
+echo "estimated time: $estimated_time" # set up UX expectation for showing estimated time value
+
 # ----- main loop process
 IFS=$'\n'
 x=0

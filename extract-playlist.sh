@@ -103,7 +103,7 @@ playlistchecks() {
 # ----- check inputs/options
 if [ -f "$localPlaylist" ]; then
     if ! playlistchecks; then exit; fi
-    echo -e "playlist: $localPlaylist\n"
+    echo -e "Using Playlist: $localPlaylist ✅"
     shift
 else
     echo -e "\n $(tput setaf 1)!!! add the m3u file as the first param (^^) $(tput sgr0)"
@@ -130,7 +130,6 @@ fi
 
 if [ -n "$output_dir" ]; then
     if ! outputchecks; then exit; fi
-    echo -e "Using Playlist: $localPlaylist ✅\n"
 else
     echo "Add an output dir with -O [dir]"
     exit
